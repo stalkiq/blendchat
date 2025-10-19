@@ -8,8 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { getChat, users } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ArrowUp, Bot, Plus } from 'lucide-react';
-import { notFound } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { notFound, useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
 import type { Chat } from '@/lib/types';
 
 export default function ChatSessionPage({
@@ -18,19 +18,33 @@ export default function ChatSessionPage({
   params: { id: string };
 }) {
   const [chat, setChat] = useState<Chat | undefined>(undefined);
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   
   // For demo purposes, we'll just use the first user as the current user.
   const currentUser = users[0]; 
 
   useEffect(() => {
+    // This is a client-side data fetch for the demo.
+    // In a real app, you'd fetch this from a database, likely in a server component.
     const chatData = getChat(params.id);
-    setChat(chatData);
-  }, [params.id]);
+    if (!chatData) {
+      // If no chat is found, redirect to the new chat page.
+      // This prevents 404 errors on refresh or with invalid IDs.
+      router.replace('/chat');
+    } else {
+      setChat(chatData);
+    }
+  }, [params.id, router]);
 
 
   if (!chat || !currentUser) {
     // You might want a loading state here
-    return null;
+    return (
+        <div className="flex h-full flex-col items-center justify-center">
+            <p>Loading chat...</p>
+        </div>
+    );
   }
 
   return (
@@ -65,9 +79,9 @@ export default function ChatSessionPage({
                   className={cn('flex-1 pt-1')}
                 >
                   <p className="font-semibold mb-1">
-                    {messageType === 'user' ? 'You' : (messageType === 'other' ? senderUser?.name : 'ChatGPT')}
+                    {messageType === 'user' ? 'You' : (messageType === 'other' ? senderUser?.name : 'AI Assistant')}
                   </p>
-                  <p className="text-sm text-foreground/90">{message.text}</p>
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap">{message.text}</p>
                 </div>
               </div>
             );
@@ -77,7 +91,11 @@ export default function ChatSessionPage({
       <div className="px-4 pb-4">
         <div className="mx-auto max-w-2xl">
           <form
-            action={sendMessage}
+            ref={formRef}
+            action={async (formData) => {
+                await sendMessage(formData);
+                formRef.current?.reset();
+            }}
             className="relative"
           >
             <input type="hidden" name="chatId" value={chat.id} />
@@ -86,6 +104,12 @@ export default function ChatSessionPage({
               placeholder="Ask anything"
               className="min-h-[52px] rounded-2xl border-2 border-border bg-background pl-12 pr-12 shadow-sm"
               required
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  formRef.current?.requestSubmit();
+                }
+              }}
             />
             <Button
               type="submit"

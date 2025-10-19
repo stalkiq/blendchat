@@ -2,24 +2,39 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { chats } from '@/lib/data';
+import { chats, users } from '@/lib/data';
+import type { Message } from '@/lib/types';
 
 export async function createNewChat(formData: FormData) {
-    const message = formData.get('message') as string;
-    
-    // In a real app, you would create a new chat in the database.
-    const newChatId = `chat-${Date.now()}`;
-    const newChat = {
-        id: newChatId,
-        title: message.substring(0, 30) + '...',
-        createdAt: new Date().toISOString(),
-        users: [], // Add users as needed
-        messages: [],
-    };
-    chats.unshift(newChat); // Add to the beginning of the array for demo
-    
-    revalidatePath('/chat');
-    redirect(`/chat/${newChatId}`);
+  const messageText = formData.get('message') as string;
+  if (!messageText) return;
+
+  const currentUser = users[0]; // For demo purposes
+
+  // In a real app, you would create a new chat in the database.
+  const newChatId = `chat-${Date.now()}`;
+  const newMessage: Message = {
+    id: `msg-${Date.now()}`,
+    text: messageText,
+    createdAt: new Date().toISOString(),
+    sender: 'user',
+    user: currentUser,
+  };
+
+  const newChat = {
+    id: newChatId,
+    title: messageText.substring(0, 30) + '...',
+    createdAt: new Date().toISOString(),
+    users: [currentUser],
+    messages: [newMessage],
+  };
+
+  // This is where you would get the AI response and add it to messages
+
+  chats.unshift(newChat); // Add to the beginning of the array for demo
+
+  revalidatePath('/chat');
+  redirect(`/chat/${newChatId}`);
 }
 
 export async function sendMessage(formData: FormData) {
@@ -29,10 +44,12 @@ export async function sendMessage(formData: FormData) {
   if (!message) {
     return;
   }
-
+  
   if (chatId === 'new-chat') {
+    // This now correctly passes the form data to create the new chat
     return createNewChat(formData);
   }
+
 
   // This is where you would:
   // 1. Get the current user
@@ -40,6 +57,25 @@ export async function sendMessage(formData: FormData) {
   // 3. Call the AI with the full chat history
   // 4. Save the AI's response to the database
   console.log(`New message for chat ${chatId}: ${message}`);
+
+  const chat = chats.find(c => c.id === chatId);
+  if (chat) {
+    const currentUser = users[0];
+    chat.messages.push({
+      id: `msg-${Date.now()}`,
+      text: message,
+      createdAt: new Date().toISOString(),
+      sender: 'user',
+      user: currentUser,
+    });
+     chat.messages.push({
+      id: `msg-${Date.now()+1}`,
+      text: `This is a mock AI response to: "${message}"`,
+      createdAt: new Date().toISOString(),
+      sender: 'ai',
+    });
+  }
+
 
   // For the demo, we'll just revalidate the path to show "new" (mocked) data.
   // In a real scenario, this would trigger a UI update with the new messages.
