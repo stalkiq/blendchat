@@ -1,7 +1,7 @@
 import { suggestStartingPrompts } from '@/ai/flows/suggest-starting-prompts';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowUp, Bot } from 'lucide-react';
+import { ArrowUp, Plus } from 'lucide-react';
 import { sendMessage } from './actions';
 import { Logo } from '@/components/logo';
 
@@ -12,51 +12,48 @@ export default async function ChatPage() {
     <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center gap-4 text-center">
-            <div className="rounded-full border bg-background p-4 shadow-sm">
-                <Logo className="text-2xl" />
-            </div>
-          <h2 className="text-3xl font-bold font-headline">
-            Welcome to Collective Chat
-          </h2>
-          <p className="text-muted-foreground">
-            Start a new conversation or explore some of these ideas.
-          </p>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 w-full">
-            {prompts.map((prompt, i) => (
-              <form action={sendMessage} key={i} className="w-full">
-                <input type="hidden" name="chatId" value="new-chat" />
-                <input type="hidden" name="message" value={prompt} />
-                <button
-                  type="submit"
-                  className="w-full rounded-lg border bg-card p-4 text-left text-sm transition-all hover:bg-muted"
-                >
-                  {prompt}
-                </button>
-              </form>
-            ))}
-          </div>
+          <h1 className="text-4xl font-semibold text-muted-foreground/80">What can I help with?</h1>
         </div>
       </div>
-      <div className="border-t bg-background p-4">
-        <form
-          action={sendMessage}
-          className="relative mx-auto max-w-2xl"
-        >
-          <input type="hidden" name="chatId" value="new-chat" />
-          <Textarea
-            name="message"
-            placeholder="What's on your mind?"
-            className="min-h-[44px] rounded-full border-2 pl-4 pr-16"
-            required
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full"
+      <div className="px-4 pb-4">
+        <div className="mx-auto max-w-2xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+              {prompts.slice(0,2).map((prompt, i) => (
+                <form action={sendMessage} key={i} className="w-full">
+                  <input type="hidden" name="chatId" value="new-chat" />
+                  <input type="hidden" name="message" value={prompt} />
+                  <button
+                    type="submit"
+                    className="w-full rounded-lg border bg-card p-4 text-left text-sm transition-all hover:bg-muted"
+                  >
+                    {prompt}
+                  </button>
+                </form>
+              ))}
+            </div>
+          <form
+            action={sendMessage}
+            className="relative"
           >
-            <ArrowUp className="h-5 w-5" />
-          </Button>
-        </form>
+            <input type="hidden" name="chatId" value="new-chat" />
+            <Textarea
+              name="message"
+              placeholder="Ask anything"
+              className="min-h-[52px] rounded-2xl border-2 border-border bg-background pl-12 pr-12 shadow-sm"
+              required
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </Button>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-lg border h-8 w-8">
+              <Plus className="h-5 w-5 text-muted-foreground"/>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

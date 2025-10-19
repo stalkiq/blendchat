@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { getAuthUser } from '@/lib/auth';
 import { getChat } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { ArrowUp, Bot } from 'lucide-react';
+import { ArrowUp, Bot, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 export default async function ChatSessionPage({
@@ -23,11 +23,11 @@ export default async function ChatSessionPage({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-16 items-center border-b px-6">
+      <header className="flex h-16 items-center border-b px-6 shrink-0">
         <h2 className="text-xl font-semibold font-headline">{chat.title}</h2>
       </header>
       <ScrollArea className="flex-1">
-        <div className="space-y-6 p-6">
+        <div className="space-y-8 p-6 max-w-2xl mx-auto w-full">
           {chat.messages.map(message => {
             const senderUser =
               message.sender === 'user' || message.sender === 'other'
@@ -40,61 +40,53 @@ export default async function ChatSessionPage({
             return (
               <div
                 key={message.id}
-                className={cn('flex items-start gap-4', {
-                  'justify-end': messageType === 'user',
-                })}
+                className={cn('flex items-start gap-4')}
               >
-                {messageType !== 'user' && (
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-muted flex items-center justify-center">
                     {messageType === 'ai' ? (
-                      <Avatar className="h-8 w-8 bg-accent text-accent-foreground">
-                        <AvatarFallback>
-                          <Bot className="h-5 w-5" />
-                        </AvatarFallback>
-                      </Avatar>
+                      <Bot className="h-5 w-5" />
                     ) : (
                       <UserAvatar user={senderUser} />
                     )}
                   </div>
-                )}
                 <div
-                  className={cn('max-w-md rounded-lg p-3', {
-                    'bg-primary text-primary-foreground': messageType === 'user',
-                    'bg-muted': messageType !== 'user',
-                  })}
+                  className={cn('flex-1 pt-1')}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <p className="font-semibold mb-1">
+                    {messageType === 'user' ? 'You' : (messageType === 'other' ? senderUser?.name : 'ChatGPT')}
+                  </p>
+                  <p className="text-sm text-foreground/90">{message.text}</p>
                 </div>
-                 {messageType === 'user' && (
-                  <div className="flex-shrink-0">
-                    <UserAvatar user={senderUser} />
-                  </div>
-                 )}
               </div>
             );
           })}
         </div>
       </ScrollArea>
-      <div className="border-t bg-background p-4">
-        <form
-          action={sendMessage}
-          className="relative mx-auto max-w-2xl"
-        >
-          <input type="hidden" name="chatId" value={chat.id} />
-          <Textarea
-            name="message"
-            placeholder="Type your message..."
-            className="min-h-[44px] rounded-full border-2 pl-4 pr-16"
-            required
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full"
+      <div className="px-4 pb-4">
+        <div className="mx-auto max-w-2xl">
+          <form
+            action={sendMessage}
+            className="relative"
           >
-            <ArrowUp className="h-5 w-5" />
-          </Button>
-        </form>
+            <input type="hidden" name="chatId" value={chat.id} />
+            <Textarea
+              name="message"
+              placeholder="Ask anything"
+              className="min-h-[52px] rounded-2xl border-2 border-border bg-background pl-12 pr-12 shadow-sm"
+              required
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </Button>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-lg border h-8 w-8">
+              <Plus className="h-5 w-5 text-muted-foreground"/>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
