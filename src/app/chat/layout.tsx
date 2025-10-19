@@ -1,14 +1,9 @@
-import { logout } from '@/app/auth/actions';
-import { Logo } from '@/components/logo';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getAuthUser } from '@/lib/auth';
-import { getChats } from '@/lib/data';
-import { cn } from '@/lib/utils';
-import { Home, LogOut, MessageSquarePlus, Settings } from 'lucide-react';
+import { getChats, users } from '@/lib/data';
+import { MessageSquarePlus } from 'lucide-react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { createNewChat } from './actions';
 
 export default async function ChatLayout({
@@ -16,11 +11,8 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getAuthUser();
-  if (!user) {
-    redirect('/login');
-  }
-
+  // For demo purposes, we'll just use the first user as the current user.
+  const user = users[0];
   const chats = getChats();
 
   return (
@@ -53,11 +45,6 @@ export default async function ChatLayout({
             <div className="flex flex-col">
               <span className="font-semibold">{user.name}</span>
             </div>
-            <form action={logout} className="ml-auto">
-              <Button variant="ghost" size="icon">
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </form>
           </div>
         </div>
       </aside>

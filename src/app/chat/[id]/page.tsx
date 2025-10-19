@@ -3,8 +3,7 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { getAuthUser } from '@/lib/auth';
-import { getChat } from '@/lib/data';
+import { getChat, users } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ArrowUp, Bot, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -15,7 +14,8 @@ export default async function ChatSessionPage({
   params: { id: string };
 }) {
   const chat = getChat(params.id);
-  const currentUser = await getAuthUser();
+  // For demo purposes, we'll just use the first user as the current user.
+  const currentUser = users[0]; 
 
   if (!chat || !currentUser) {
     return notFound();
@@ -91,6 +91,3 @@ export default async function ChatSessionPage({
     </div>
   );
 }
-
-// Add a dummy Avatar component to satisfy the compiler
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';

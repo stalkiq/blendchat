@@ -1,11 +1,10 @@
-import { getAuthUser } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import ChatLayout from './chat/layout';
+import ChatPage from './chat/page';
 
-export default async function Home() {
-  const user = await getAuthUser();
-  if (user) {
-    redirect('/chat');
-  } else {
-    redirect('/login');
-  }
+export default function Home() {
+  return (
+    <ChatLayout>
+      <ChatPage />
+    </ChatLayout>
+  );
 }
