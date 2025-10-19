@@ -1,30 +1,40 @@
+'use client';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getChats, users } from '@/lib/data';
 import { MessageSquarePlus } from 'lucide-react';
 import Link from 'next/link';
-import { createNewChat } from './actions';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { Chat } from '@/lib/types';
 
-export default async function ChatLayout({
+export default function ChatLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   // For demo purposes, we'll just use the first user as the current user.
   const user = users[0];
-  const chats = getChats();
+  const [chats, setChats] = useState<Chat[]>([]);
+
+  useEffect(() => {
+    setChats(getChats());
+  }, []);
+
+  const createNewChat = () => {
+    router.push('/chat');
+  };
 
   return (
     <div className="flex h-screen w-full bg-background">
       <aside className="hidden h-full w-72 flex-col bg-card text-card-foreground md:flex">
         <div className="flex h-16 items-center justify-between border-b border-border/50 px-4">
-            <form action={createNewChat} className="w-full">
-                <Button variant="outline" className="w-full justify-start gap-2">
-                    <MessageSquarePlus className="h-5 w-5"/>
-                    <span className="font-semibold">New chat</span>
-                </Button>
-            </form>
+            <Button variant="outline" className="w-full justify-start gap-2" onClick={createNewChat}>
+                <MessageSquarePlus className="h-5 w-5"/>
+                <span className="font-semibold">New chat</span>
+            </Button>
         </div>
         <ScrollArea className="flex-1">
             <nav className="grid items-start p-2 text-sm font-medium">

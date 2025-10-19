@@ -1,12 +1,20 @@
+'use client';
 import { suggestStartingPrompts } from '@/ai/flows/suggest-starting-prompts';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowUp, Plus } from 'lucide-react';
 import { sendMessage } from './actions';
 import { Logo } from '@/components/logo';
+import { useEffect, useState } from 'react';
 
-export default async function ChatPage() {
-  const { prompts } = await suggestStartingPrompts();
+export default function ChatPage() {
+  const [prompts, setPrompts] = useState<string[]>([]);
+
+  useEffect(() => {
+    suggestStartingPrompts().then(({ prompts }) => {
+      setPrompts(prompts);
+    });
+  }, []);
 
   return (
     <div className="flex h-full flex-col">

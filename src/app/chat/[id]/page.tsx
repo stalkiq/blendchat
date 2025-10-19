@@ -1,3 +1,5 @@
+'use client';
+
 import { sendMessage } from '@/app/chat/actions';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
@@ -7,18 +9,28 @@ import { getChat, users } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ArrowUp, Bot, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { Chat } from '@/lib/types';
 
-export default async function ChatSessionPage({
+export default function ChatSessionPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const chat = getChat(params.id);
+  const [chat, setChat] = useState<Chat | undefined>(undefined);
+  
   // For demo purposes, we'll just use the first user as the current user.
   const currentUser = users[0]; 
 
+  useEffect(() => {
+    const chatData = getChat(params.id);
+    setChat(chatData);
+  }, [params.id]);
+
+
   if (!chat || !currentUser) {
-    return notFound();
+    // You might want a loading state here
+    return null;
   }
 
   return (
