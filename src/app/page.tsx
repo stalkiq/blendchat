@@ -1,10 +1,5 @@
-import ChatLayout from './chat/layout';
-import ChatPage from './chat/page';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <ChatLayout>
-      <ChatPage />
-    </ChatLayout>
-  );
+  redirect('/chat');
 }
