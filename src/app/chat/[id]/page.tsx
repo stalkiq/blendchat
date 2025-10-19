@@ -8,19 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { getChat, users } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ArrowUp, Bot, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import type { Chat } from '@/lib/types';
 
-export default function ChatSessionPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ChatSessionPage() {
   const [chat, setChat] = useState<Chat | undefined>(undefined);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  const { id: chatId } = params;
+  const params = useParams();
+  const chatId = params.id as string;
 
   // For demo purposes, we'll just use the first user as the current user.
   const currentUser = users[0];
