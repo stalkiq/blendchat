@@ -66,7 +66,7 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
             <Textarea
               name="message"
               placeholder="Ask anything"
-              className="min-h-[52px] rounded-2xl border-2 border-border bg-background pl-12 pr-12 shadow-sm"
+              className="min-h-[52px] rounded-2xl border-2 border-red-900 bg-[#1a0b0b] text-red-50 placeholder:text-red-200/50 pl-12 pr-12 shadow-sm focus-visible:ring-2 focus-visible:ring-red-600"
               required
             />
             <Button

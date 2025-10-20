@@ -201,7 +201,7 @@ export default function ChatSessionPage() {
             <Textarea
               name="message"
               placeholder="Ask anything"
-              className="min-h-[56px] rounded-2xl border-2 border-border bg-background/70 pl-12 pr-12 shadow-sm backdrop-blur"
+              className="min-h-[56px] rounded-2xl border-2 border-red-900 bg-[#1a0b0b]/90 text-red-50 placeholder:text-red-200/50 pl-12 pr-12 shadow-sm backdrop-blur focus-visible:ring-2 focus-visible:ring-red-600"
               required
               onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
