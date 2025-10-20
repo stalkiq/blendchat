@@ -112,34 +112,34 @@ export async function sendMessage(formData: FormData) {
     });
     try {
       const apiUrl = process.env.CHAT_API_URL;
-      if (apiUrl) {
-        const history = chat.messages.map(m => ({
-          role: m.sender === 'user' ? 'user' : 'assistant',
-          content: m.text,
-        }));
-        const reply = await fetch(`${apiUrl}/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system: 'You are a helpful assistant for a group chat.',
-            history,
-            prompt: message,
-          }),
-        }).then(r => r.json());
-        chat.messages.push({
-          id: `msg-${Date.now()+1}`,
-          text: reply?.reply ?? ``,
-          createdAt: new Date().toISOString(),
-          sender: 'ai',
-        });
-      } else {
-        chat.messages.push({
-          id: `msg-${Date.now()+1}`,
-          text: `AI backend not configured. Set CHAT_API_URL.`,
-          createdAt: new Date().toISOString(),
-          sender: 'ai',
-        });
-      }
+      const history = chat.messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text,
+      }));
+      const endpoint = apiUrl ? `${apiUrl}/chat` : `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/api/chat`;
+      const reply = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: 'You are a helpful assistant for a group chat.',
+          history,
+          prompt: message,
+        }),
+      }).then(async r => {
+        if (r.headers.get('content-type')?.includes('text/event-stream')) {
+          // If streaming, read to string for demo; can upgrade to live stream later
+          const text = await r.text();
+          const match = text.match(/data: \{\"choices\":\[\{\"delta\":\{\"content\":\"([\s\S]*?)\"/);
+          return { reply: match ? match[1].replace(/\\n/g, '\n') : '' };
+        }
+        return r.json();
+      });
+      chat.messages.push({
+        id: `msg-${Date.now()+1}`,
+        text: reply?.reply ?? ``,
+        createdAt: new Date().toISOString(),
+        sender: 'ai',
+      });
     } catch {}
   }
 
