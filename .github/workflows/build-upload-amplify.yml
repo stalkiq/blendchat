@@ -1,0 +1,67 @@
+name: Build and Upload to Amplify (Artifact Deploy)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'app/**'
+      - 'pages/**'
+      - 'styles/**'
+      - 'next.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      APP_ID: d2cianvz4vv9ue
+      BRANCH_NAME: main
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build Next.js
+        env:
+          NEXT_DISABLE_SOURCEMAPS: '1'
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+
+      - name: Create artifact
+        run: |
+          mkdir -p artifact
+          cp -R .next artifact/.next
+          cp -R public artifact/public || true
+          cp package.json artifact/package.json
+          cp next.config.* artifact/ 2>/dev/null || true
+          (cd artifact && zip -qr ../artifact.zip .)
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_CDK_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Upload artifact to Amplify and deploy
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+          RESP=$(aws amplify create-deployment --app-id "$APP_ID" --branch-name "$BRANCH_NAME")
+          JOB_ID=$(echo "$RESP" | jq -r '.jobId')
+          URL=$(echo "$RESP" | jq -r '.zipUploadUrl')
+          curl -f -X PUT -T artifact.zip "$URL"
+          aws amplify start-deployment --app-id "$APP_ID" --branch-name "$BRANCH_NAME" --job-id "$JOB_ID"
+

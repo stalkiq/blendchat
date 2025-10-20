@@ -3,8 +3,17 @@ name: Deploy Frontend (Amplify)
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'infrastructure/**'
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'app/**'
+      - 'pages/**'
+      - 'styles/**'
+      - 'next.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'amplify.yml'
+      - '!infrastructure/**'
   workflow_dispatch: {}
 
 jobs:

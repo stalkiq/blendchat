@@ -6,11 +6,12 @@ frontend:
         - npm ci
     build:
       commands:
-        - npm run build
+        - NEXT_DISABLE_SOURCEMAPS=1 NEXT_TELEMETRY_DISABLED=1 npm run build
   artifacts:
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
+      - ~/.npm/**/*
 
