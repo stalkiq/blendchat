@@ -1,6 +1,4 @@
 'use client';
-
-import { sendMessage } from '@/app/chat/actions';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -94,8 +92,106 @@ export default function ChatSessionPage() {
         <div className="mx-auto max-w-2xl">
           <form
             ref={formRef}
-            action={async formData => {
-              await sendMessage(formData);
+            onSubmit={async e => {
+              e.preventDefault();
+              const form = formRef.current;
+              if (!form) return;
+              const formData = new FormData(form);
+              const prompt = (formData.get('message') as string) || '';
+              if (!prompt.trim()) return;
+
+              // Optimistically render user's message
+              setChat(prev => {
+                if (!prev) return prev;
+                const next: Chat = {
+                  ...prev,
+                  messages: [
+                    ...prev.messages,
+                    {
+                      id: `msg-${Date.now()}`,
+                      text: prompt,
+                      createdAt: new Date().toISOString(),
+                      sender: 'user',
+                      user: currentUser,
+                    },
+                    {
+                      id: `msg-${Date.now()+1}`,
+                      text: '',
+                      createdAt: new Date().toISOString(),
+                      sender: 'ai',
+                    },
+                  ],
+                } as Chat;
+                return next;
+              });
+
+              // Build history for the API
+              const history = (getChat(chatId)?.messages || []).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'assistant',
+                content: m.text,
+              }));
+
+              try {
+                const res = await fetch('/api/chat', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ history, prompt }),
+                });
+
+                if (res.headers.get('content-type')?.includes('text/event-stream') && res.body) {
+                  const reader = res.body.getReader();
+                  const decoder = new TextDecoder();
+                  let buffer = '';
+                  // Append tokens to the last AI message as they arrive
+                  const append = (chunk: string) => {
+                    setChat(prev => {
+                      if (!prev) return prev;
+                      const msgs = [...prev.messages];
+                      for (let i = msgs.length - 1; i >= 0; i--) {
+                        if (msgs[i].sender === 'ai') {
+                          msgs[i] = { ...msgs[i], text: msgs[i].text + chunk } as any;
+                          break;
+                        }
+                      }
+                      return { ...prev, messages: msgs } as Chat;
+                    });
+                  };
+
+                  while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const parts = buffer.split('\n\n');
+                    buffer = parts.pop() || '';
+                    for (const part of parts) {
+                      const line = part.trim();
+                      if (!line.startsWith('data: ')) continue;
+                      const data = line.slice(6);
+                      if (data === '[DONE]') continue;
+                      try {
+                        const json = JSON.parse(data);
+                        const delta = json.choices?.[0]?.delta?.content || '';
+                        if (delta) append(delta);
+                      } catch {}
+                    }
+                  }
+                } else {
+                  const json = await res.json().catch(() => ({}));
+                  const text = json.reply || '';
+                  setChat(prev => {
+                    if (!prev) return prev;
+                    const msgs = [...prev.messages];
+                    for (let i = msgs.length - 1; i >= 0; i--) {
+                      if (msgs[i].sender === 'ai') {
+                        msgs[i] = { ...msgs[i], text } as any;
+                        break;
+                      }
+                    }
+                    return { ...prev, messages: msgs } as Chat;
+                  });
+                }
+              } catch {}
+
               formRef.current?.reset();
             }}
             className="relative"
