@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
       )}
     >
       <MessageSquareShare className="h-6 w-6" />
-      <h1>Collective Chat</h1>
+      <h1>BlendChat</h1>
     </div>
   );
 }

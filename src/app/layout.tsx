@@ -15,7 +15,7 @@ const fontHeadline = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'Collective Chat',
+  title: 'BlendChat',
   description: 'A collaborative AI chat application',
 };
 
