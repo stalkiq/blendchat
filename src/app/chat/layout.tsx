@@ -4,7 +4,7 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getChats, users } from '@/lib/data';
-import { ChevronsUpDown, MessageSquarePlus, UserPlus, Users } from 'lucide-react';
+import { ChevronsUpDown, MessageSquarePlus, UserPlus, Users, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -89,14 +89,24 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-2"
-            onClick={createNewChat}
-          >
-            <MessageSquarePlus className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-2"
+              onClick={createNewChat}
+            >
+              <MessageSquarePlus className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/')}
+              aria-label="Log out"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
         <ScrollArea className="flex-1">
           <nav className="grid items-start p-2 text-sm font-medium">

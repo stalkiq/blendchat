@@ -1,5 +1,72 @@
-import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/logo';
+import { Check } from 'lucide-react';
 
 export default function Home() {
-  redirect('/chat');
+  return (
+    <main className="min-h-screen">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+        <div className="mx-auto max-w-6xl px-6 pt-24 pb-16 text-center">
+          <div className="flex items-center justify-center">
+            <Logo />
+          </div>
+          <h1 className="mt-6 text-5xl font-headline font-extrabold tracking-tight">
+            The AI for Groups
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            BlendChat lets teams collaborate with AI together—share context, co-create, and
+            get answers that reflect everyone’s inputs.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <Link href="/chat">
+              <Button size="lg" className="rounded-xl">Start now</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="secondary" className="rounded-xl">See pricing</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-headline font-semibold tracking-tight">How it works</h2>
+          <p className="mt-2 text-muted-foreground">
+            Create a room, invite teammates, drop in your notes or links, and chat with an AI that
+            sees the shared context. Every reply is shaped by the full conversation.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="rounded-2xl border bg-card/60 p-6 shadow-sm">
+            <h3 className="text-lg font-medium">1. Start a room</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Spin up a chat and invite collaborators.</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Group participants</li>
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Shared history</li>
+            </ul>
+          </div>
+          <div className="rounded-2xl border bg-card/60 p-6 shadow-sm">
+            <h3 className="text-lg font-medium">2. Add context</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Paste notes, bullet points, or links so AI can reason.</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Long‑form prompts</li>
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Multi‑user inputs</li>
+            </ul>
+          </div>
+          <div className="rounded-2xl border bg-card/60 p-6 shadow-sm">
+            <h3 className="text-lg font-medium">3. Decide together</h3>
+            <p className="mt-2 text-sm text-muted-foreground">AI proposes drafts and options; your team iterates in one place.</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Actionable outputs</li>
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary"/>Consistent memory</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 }

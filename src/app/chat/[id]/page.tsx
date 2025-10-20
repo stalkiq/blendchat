@@ -46,10 +46,12 @@ export default function ChatSessionPage() {
   return (
     <div className="flex h-full flex-col">
       <header className="flex h-16 items-center border-b px-6 shrink-0">
-        <h2 className="text-xl font-semibold font-headline">{chat.title}</h2>
+        <h2 className="text-xl font-headline font-semibold tracking-tight mx-auto max-w-2xl w-full text-center">
+          {chat.title}
+        </h2>
       </header>
       <ScrollArea className="flex-1">
-        <div className="space-y-8 p-6 max-w-2xl mx-auto w-full">
+        <div className="space-y-6 p-6 max-w-2xl mx-auto w-full">
           {chat.messages.map(message => {
             const senderUser =
               message.sender === 'user' || message.sender === 'other'
@@ -64,7 +66,7 @@ export default function ChatSessionPage() {
                 key={message.id}
                 className={cn('flex items-start gap-4')}
               >
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                <div className="flex-shrink-0 h-9 w-9 rounded-full bg-card/60 border flex items-center justify-center shadow-sm">
                   {messageType === 'ai' ? (
                     <Bot className="h-5 w-5" />
                   ) : (
@@ -72,14 +74,14 @@ export default function ChatSessionPage() {
                   )}
                 </div>
                 <div className={cn('flex-1 pt-1')}>
-                  <p className="font-semibold mb-1">
+                  <p className="font-medium mb-1">
                     {messageType === 'user'
                       ? 'You'
                       : messageType === 'other'
                       ? senderUser?.name
                       : 'AI Assistant'}
                   </p>
-                  <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                  <p className="text-[0.95rem] leading-6 text-foreground/90 whitespace-pre-wrap">
                     {message.text}
                   </p>
                 </div>
@@ -103,7 +105,7 @@ export default function ChatSessionPage() {
             <Textarea
               name="message"
               placeholder="Ask anything"
-              className="min-h-[52px] rounded-2xl border-2 border-border bg-background pl-12 pr-12 shadow-sm"
+              className="min-h-[56px] rounded-2xl border-2 border-border bg-background/70 pl-12 pr-12 shadow-sm backdrop-blur"
               required
               onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {

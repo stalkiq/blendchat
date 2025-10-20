@@ -1,0 +1,50 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+    paths:
+      - 'infrastructure/**'
+
+jobs:
+  cdk-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_CDK_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Install CDK deps
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: Build
+        working-directory: infrastructure
+        run: npm run build
+
+      - name: CDK Bootstrap (first time only)
+        working-directory: infrastructure
+        run: npm run bootstrap
+        continue-on-error: true
+
+      - name: CDK Deploy
+        working-directory: infrastructure
+        env:
+          OPENAI_MODEL: gpt-4o-mini
+        run: |
+          npm run deploy
+

@@ -1,0 +1,24 @@
+{
+  "name": "blendchat-infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --require-approval never",
+    "bootstrap": "cdk bootstrap"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.154.0",
+    "constructs": "^10.3.0",
+    "@aws-cdk/aws-apigatewayv2-alpha": "^2.154.0-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.154.0-alpha.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.137",
+    "typescript": "^5.4.5",
+    "ts-node": "^10.9.2"
+  }
+}
+

@@ -48,7 +48,32 @@ export async function createNewChat(formData: FormData) {
     messages: [newMessage],
   };
 
-  // This is where you would get the AI response and add it to messages
+  // Call AWS chat API for first assistant reply
+  try {
+    const apiUrl = process.env.CHAT_API_URL;
+    if (apiUrl) {
+      const reply = await fetch(`${apiUrl}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: 'You are a helpful assistant for a group chat.',
+          history: [],
+          prompt: messageText,
+        }),
+      }).then(r => r.json());
+
+      if (reply?.reply) {
+        newChat.messages.push({
+          id: `msg-${Date.now()+1}`,
+          text: reply.reply,
+          createdAt: new Date().toISOString(),
+          sender: 'ai',
+        });
+      }
+    }
+  } catch (e) {
+    // Swallow API errors and proceed with empty AI message for demo
+  }
 
   chats.unshift(newChat); // Add to the beginning of the array for demo
 
@@ -73,8 +98,7 @@ export async function sendMessage(formData: FormData) {
   // This is where you would:
   // 1. Get the current user
   // 2. Save the user's message to the database for this chatId
-  // 3. Call the AI with the full chat history
-  // 4. Save the AI's response to the database
+  // 3. Call the AI with the full chat history via AWS API
   console.log(`New message for chat ${chatId}: ${message}`);
 
   const chat = chats.find(c => c.id === chatId);
@@ -86,12 +110,37 @@ export async function sendMessage(formData: FormData) {
       sender: 'user',
       user: currentUser,
     });
-     chat.messages.push({
-      id: `msg-${Date.now()+1}`,
-      text: `This is a mock AI response to: "${message}"`,
-      createdAt: new Date().toISOString(),
-      sender: 'ai',
-    });
+    try {
+      const apiUrl = process.env.CHAT_API_URL;
+      if (apiUrl) {
+        const history = chat.messages.map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text,
+        }));
+        const reply = await fetch(`${apiUrl}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system: 'You are a helpful assistant for a group chat.',
+            history,
+            prompt: message,
+          }),
+        }).then(r => r.json());
+        chat.messages.push({
+          id: `msg-${Date.now()+1}`,
+          text: reply?.reply ?? ``,
+          createdAt: new Date().toISOString(),
+          sender: 'ai',
+        });
+      } else {
+        chat.messages.push({
+          id: `msg-${Date.now()+1}`,
+          text: `AI backend not configured. Set CHAT_API_URL.`,
+          createdAt: new Date().toISOString(),
+          sender: 'ai',
+        });
+      }
+    } catch {}
   }
 
 

@@ -1,0 +1,32 @@
+name: Deploy Frontend (Amplify)
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'infrastructure/**'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      APP_ID: d2cianvz4vv9ue
+      BRANCH_NAME: main
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_CDK_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Trigger Amplify redeploy
+        run: |
+          aws amplify start-job --app-id "$APP_ID" --branch-name "$BRANCH_NAME" --job-type RELEASE
+

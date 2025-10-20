@@ -32,14 +32,17 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center gap-4 text-center">
-          <h1 className="text-4xl font-semibold text-muted-foreground/80">What can I help with?</h1>
+          <div className="rounded-2xl border bg-card/60 backdrop-blur p-8 shadow-sm">
+            <h1 className="text-4xl font-headline font-semibold tracking-tight">How can we help today?</h1>
+            <p className="mt-2 text-muted-foreground">Start with a prompt below or ask anything.</p>
+          </div>
         </div>
       </div>
       <div className="px-4 pb-4">
         <div className="mx-auto max-w-2xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               {prompts.slice(0,2).map((prompt, i) => (
                 <form action={createNewChat} key={i} className="w-full">
                   <input type="hidden" name="userId" value={user.id} />
@@ -47,7 +50,7 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
                   <input type="hidden" name="message" value={prompt} />
                   <button
                     type="submit"
-                    className="w-full rounded-lg border bg-card p-4 text-left text-sm transition-all hover:bg-muted"
+                    className="w-full rounded-xl border bg-card/60 backdrop-blur p-4 text-left text-sm transition-all hover:bg-muted shadow-sm"
                   >
                     {prompt}
                   </button>
