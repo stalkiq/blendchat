@@ -5,12 +5,13 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { getChat, users } from '@/lib/data';
+import { getChat } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ArrowUp, Bot, Plus } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import type { Chat } from '@/lib/types';
+import { useUser } from '../user-context';
 
 export default function ChatSessionPage() {
   const [chat, setChat] = useState<Chat | undefined>(undefined);
@@ -18,9 +19,7 @@ export default function ChatSessionPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const params = useParams();
   const chatId = params.id as string;
-
-  // For demo purposes, we'll just use the first user as the current user.
-  const currentUser = users[0];
+  const { user: currentUser } = useUser();
 
   useEffect(() => {
     // This is a client-side data fetch for the demo.
@@ -100,6 +99,7 @@ export default function ChatSessionPage() {
             className="relative"
           >
             <input type="hidden" name="chatId" value={chat.id} />
+            <input type="hidden" name="userId" value={currentUser.id} />
             <Textarea
               name="message"
               placeholder="Ask anything"

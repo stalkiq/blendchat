@@ -3,18 +3,23 @@ import { suggestStartingPrompts } from '@/ai/flows/suggest-starting-prompts';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowUp, Plus } from 'lucide-react';
-import { sendMessage } from './actions';
-import { Logo } from '@/components/logo';
+import { createNewChat } from './actions';
 import { useEffect, useState } from 'react';
+import { useUser } from './user-context';
 
 export default function ChatPage() {
   const [prompts, setPrompts] = useState<string[]>([]);
+  const { user } = useUser();
 
   useEffect(() => {
     suggestStartingPrompts().then(({ prompts }) => {
       setPrompts(prompts);
     });
   }, []);
+
+  if (!user) {
+    return null; // Or a loading state
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -27,8 +32,8 @@ export default function ChatPage() {
         <div className="mx-auto max-w-2xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
               {prompts.slice(0,2).map((prompt, i) => (
-                <form action={sendMessage} key={i} className="w-full">
-                  <input type="hidden" name="chatId" value="new-chat" />
+                <form action={createNewChat} key={i} className="w-full">
+                  <input type="hidden" name="userId" value={user.id} />
                   <input type="hidden" name="message" value={prompt} />
                   <button
                     type="submit"
@@ -40,10 +45,10 @@ export default function ChatPage() {
               ))}
             </div>
           <form
-            action={sendMessage}
+            action={createNewChat}
             className="relative"
           >
-            <input type="hidden" name="chatId" value="new-chat" />
+            <input type="hidden" name="userId" value={user.id} />
             <Textarea
               name="message"
               placeholder="Ask anything"

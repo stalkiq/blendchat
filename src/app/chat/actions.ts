@@ -7,9 +7,13 @@ import type { Message } from '@/lib/types';
 
 export async function createNewChat(formData: FormData) {
   const messageText = formData.get('message') as string;
-  if (!messageText) return;
+  const userId = formData.get('userId') as string;
 
-  const currentUser = users[0]; // For demo purposes
+  if (!messageText || !userId) return;
+
+  const currentUser = users.find(u => u.id === userId);
+  if (!currentUser) return;
+
 
   // In a real app, you would create a new chat in the database.
   const newChatId = `chat-${Date.now()}`;
@@ -40,15 +44,15 @@ export async function createNewChat(formData: FormData) {
 export async function sendMessage(formData: FormData) {
   const message = formData.get('message') as string;
   const chatId = formData.get('chatId') as string;
+  const userId = formData.get('userId') as string;
 
-  if (!message) {
+
+  if (!message || !chatId || !userId) {
     return;
   }
   
-  if (chatId === 'new-chat') {
-    // This now correctly passes the form data to create the new chat
-    return createNewChat(formData);
-  }
+  const currentUser = users.find(u => u.id === userId);
+  if (!currentUser) return;
 
 
   // This is where you would:
@@ -60,7 +64,6 @@ export async function sendMessage(formData: FormData) {
 
   const chat = chats.find(c => c.id === chatId);
   if (chat) {
-    const currentUser = users[0];
     chat.messages.push({
       id: `msg-${Date.now()}`,
       text: message,
