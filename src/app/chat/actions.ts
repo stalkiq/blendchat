@@ -3,16 +3,31 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { chats, users } from '@/lib/data';
-import type { Message } from '@/lib/types';
+import type { Message, User } from '@/lib/types';
 
 export async function createNewChat(formData: FormData) {
   const messageText = formData.get('message') as string;
   const userId = formData.get('userId') as string;
+  const participantIds = formData.getAll('participantIds') as string[];
 
   if (!messageText || !userId) return;
 
   const currentUser = users.find(u => u.id === userId);
   if (!currentUser) return;
+
+  const participants: User[] = [currentUser];
+  participantIds.forEach(id => {
+    if (id !== currentUser.id) {
+      const user = users.find(u => u.id === id);
+      if (user) {
+        participants.push(user);
+      }
+    }
+  });
+  
+  const uniqueParticipants = Array.from(new Set(participants.map(u => u.id))).map(id => {
+    return participants.find(u => u.id === id)!;
+  });
 
 
   // In a real app, you would create a new chat in the database.
@@ -29,7 +44,7 @@ export async function createNewChat(formData: FormData) {
     id: newChatId,
     title: messageText.substring(0, 30) + '...',
     createdAt: new Date().toISOString(),
-    users: [currentUser],
+    users: uniqueParticipants,
     messages: [newMessage],
   };
 

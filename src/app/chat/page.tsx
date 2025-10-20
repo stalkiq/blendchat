@@ -6,8 +6,15 @@ import { ArrowUp, Plus } from 'lucide-react';
 import { createNewChat } from './actions';
 import { useEffect, useState } from 'react';
 import { useUser } from './user-context';
+import type { User } from '@/lib/types';
 
-export default function ChatPage() {
+
+interface ChatPageProps {
+  newChatUsers?: User[];
+}
+
+
+export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
   const [prompts, setPrompts] = useState<string[]>([]);
   const { user } = useUser();
 
@@ -20,6 +27,8 @@ export default function ChatPage() {
   if (!user) {
     return null; // Or a loading state
   }
+
+  const participantIds = newChatUsers.map(u => u.id);
 
   return (
     <div className="flex h-full flex-col">
@@ -34,6 +43,7 @@ export default function ChatPage() {
               {prompts.slice(0,2).map((prompt, i) => (
                 <form action={createNewChat} key={i} className="w-full">
                   <input type="hidden" name="userId" value={user.id} />
+                  {participantIds.map(id => <input key={id} type="hidden" name="participantIds" value={id} />)}
                   <input type="hidden" name="message" value={prompt} />
                   <button
                     type="submit"
@@ -49,6 +59,7 @@ export default function ChatPage() {
             className="relative"
           >
             <input type="hidden" name="userId" value={user.id} />
+            {participantIds.map(id => <input key={id} type="hidden" name="participantIds" value={id} />)}
             <Textarea
               name="message"
               placeholder="Ask anything"
