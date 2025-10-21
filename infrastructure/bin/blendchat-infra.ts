@@ -13,6 +13,7 @@ const env = { account: '016442247702', region };
 const dns = new DnsStack(app, 'BlendChatDnsStack', {
   env,
   domainName: 'chatbudi.com',
+  hostedZoneId: 'Z02161133F7WAYTLBWS3K',
 });
 
 const auth = new AuthStack(app, 'BlendChatAuthStack', {
