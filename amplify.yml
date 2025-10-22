@@ -8,6 +8,7 @@ frontend:
       commands:
         - NEXT_DISABLE_SOURCEMAPS=1 NEXT_TELEMETRY_DISABLED=1 npm run build
   artifacts:
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
