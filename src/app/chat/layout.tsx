@@ -68,36 +68,20 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen w-full bg-background">
       <aside className="hidden h-full w-72 flex-col border-r bg-card text-card-foreground md:flex">
         <div className="flex h-16 items-center justify-between border-b px-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <UserAvatar user={user} />
-                  <span className="font-semibold">{user.name}</span>
-                </div>
-                <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
-              {users.map(u => (
-                <DropdownMenuItem key={u.id} onClick={() => setUser(u)}>
-                  <div className="flex items-center gap-3">
-                    <UserAvatar user={u} />
-                    <span>{u.name}</span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-3 flex-1">
+            <UserAvatar user={user} />
+            <div className="flex flex-col min-w-0">
+              <span className="font-semibold truncate">{user.name}</span>
+              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+            </div>
+          </div>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
               className="ml-2"
               onClick={createNewChat}
+              title="New chat"
             >
               <MessageSquarePlus className="h-5 w-5" />
             </Button>
@@ -106,6 +90,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
               size="icon"
               onClick={() => signOut()}
               aria-label="Log out"
+              title="Sign out"
             >
               <LogOut className="h-5 w-5" />
             </Button>

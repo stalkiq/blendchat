@@ -6,15 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Check } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Redirect to chat if already logged in
   useEffect(() => {
     if (user && !loading) {
+      console.log('User authenticated, redirecting to chat...', user);
+      setIsRedirecting(true);
       router.push('/chat');
     }
   }, [user, loading, router]);
@@ -23,9 +26,22 @@ export default function Home() {
     if (user) {
       router.push('/chat');
     } else if (!loading) {
+      console.log('Starting Google sign-in...');
       await signInWithGoogle();
     }
   };
+
+  // Show loading state during redirect
+  if (isRedirecting || (user && !loading)) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <p className="mt-4 text-muted-foreground">Redirecting to chat...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen">
