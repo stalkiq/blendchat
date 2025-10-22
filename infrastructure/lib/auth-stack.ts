@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, SecretValue } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 
@@ -35,7 +35,7 @@ export class AuthStack extends Stack {
       const googleProvider = new cognito.UserPoolIdentityProviderGoogle(this, 'GoogleProvider', {
         userPool: this.userPool,
         clientId: props.googleClientId,
-        clientSecretValue: props.googleClientSecret,
+        clientSecretValue: SecretValue.unsafePlainText(props.googleClientSecret),
         scopes: ['profile', 'email', 'openid'],
         attributeMapping: {
           email: cognito.ProviderAttribute.GOOGLE_EMAIL,
