@@ -1,11 +1,12 @@
 'use client';
 
 import { User } from '@/lib/types';
-import { users } from '@/lib/data';
+import { useAuth } from '@/components/auth-provider';
 import {
   createContext,
   useContext,
   useState,
+  useEffect,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -19,7 +20,27 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User>(users[0]);
+  const { user: authUser } = useAuth();
+  
+  // Convert authenticated user to app User type
+  const [user, setUser] = useState<User>({
+    id: authUser?.id || '1',
+    name: authUser?.name || authUser?.email?.split('@')[0] || 'User',
+    email: authUser?.email || '',
+    avatar: authUser?.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser?.email || 'user'}`,
+  });
+
+  // Update user when authUser changes
+  useEffect(() => {
+    if (authUser) {
+      setUser({
+        id: authUser.id,
+        name: authUser.name || authUser.email?.split('@')[0] || 'User',
+        email: authUser.email,
+        avatar: authUser.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.email}`,
+      });
+    }
+  }, [authUser]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
