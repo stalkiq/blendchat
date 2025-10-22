@@ -22,7 +22,7 @@ export class AuthStack extends Stack {
       selfSignUpEnabled: true,
       signInAliases: { email: true },
       standardAttributes: { 
-        email: { required: true, mutable: false },
+        email: { required: true, mutable: true },
         fullname: { required: false, mutable: true },
         profilePicture: { required: false, mutable: true },
       },
