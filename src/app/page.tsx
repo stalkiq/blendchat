@@ -22,7 +22,7 @@ export default function Home() {
   const handleStartNow = async () => {
     if (user) {
       router.push('/chat');
-    } else {
+    } else if (!loading) {
       await signInWithGoogle();
     }
   };

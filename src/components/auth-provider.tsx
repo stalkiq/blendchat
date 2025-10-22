@@ -70,9 +70,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignInWithGoogle = async () => {
     try {
+      // Check if user is already signed in
+      if (user) {
+        console.log('User already signed in');
+        return;
+      }
       await signInWithRedirect({ provider: 'Google' });
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      // Ignore "already authenticated" errors
+      if (error instanceof Error && error.name === 'UserAlreadyAuthenticatedException') {
+        console.log('User already authenticated, checking session...');
+        await checkUser();
+      } else {
+        console.error('Error signing in with Google:', error);
+      }
     }
   };
 
