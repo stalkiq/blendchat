@@ -1,18 +1,19 @@
 name: Build and Upload to Amplify (Artifact Deploy)
 
+# Disabled: Amplify auto-deploys from GitHub
 on:
   workflow_dispatch: {}
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'app/**'
-      - 'pages/**'
-      - 'styles/**'
-      - 'next.config.*'
-      - 'package.json'
-      - 'package-lock.json'
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'src/**'
+  #     - 'public/**'
+  #     - 'app/**'
+  #     - 'pages/**'
+  #     - 'styles/**'
+  #     - 'next.config.*'
+  #     - 'package.json'
+  #     - 'package-lock.json'
 
 jobs:
   build-and-upload:

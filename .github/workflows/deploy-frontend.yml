@@ -1,19 +1,20 @@
 name: Deploy Frontend (Amplify)
 
+# Disabled: Amplify auto-deploys from GitHub
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'app/**'
-      - 'pages/**'
-      - 'styles/**'
-      - 'next.config.*'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'amplify.yml'
-      - '!infrastructure/**'
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'src/**'
+  #     - 'public/**'
+  #     - 'app/**'
+  #     - 'pages/**'
+  #     - 'styles/**'
+  #     - 'next.config.*'
+  #     - 'package.json'
+  #     - 'package-lock.json'
+  #     - 'amplify.yml'
+  #     - '!infrastructure/**'
   workflow_dispatch: {}
 
 jobs:
