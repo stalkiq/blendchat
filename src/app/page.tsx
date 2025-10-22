@@ -1,9 +1,32 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Check } from 'lucide-react';
+import { useAuth } from '@/components/auth-provider';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const { user, loading, signInWithGoogle } = useAuth();
+  const router = useRouter();
+
+  // Redirect to chat if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/chat');
+    }
+  }, [user, loading, router]);
+
+  const handleStartNow = async () => {
+    if (user) {
+      router.push('/chat');
+    } else {
+      await signInWithGoogle();
+    }
+  };
+
   return (
     <main className="min-h-screen">
       {/* Hero */}
@@ -18,12 +41,17 @@ export default function Home() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             BlendChat lets teams collaborate with AI together—share context, co-create, and
-            get answers that reflect everyone’s inputs.
+            get answers that reflect everyone's inputs.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <Link href="/chat">
-              <Button size="lg" className="rounded-xl">Start now</Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="rounded-xl"
+              onClick={handleStartNow}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Start now'}
+            </Button>
             <Link href="/pricing">
               <Button size="lg" variant="secondary" className="rounded-xl">See pricing</Button>
             </Link>

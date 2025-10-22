@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { UserProvider, useUser } from './user-context';
+import { AuthGuard } from '@/components/auth-guard';
+import { useAuth } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 import {
   Popover,
@@ -29,6 +31,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const params = useParams();
   const { user, setUser } = useUser();
+  const { signOut } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const chatId = params.id as string | undefined;
 
@@ -101,7 +104,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => router.push('/')}
+              onClick={() => signOut()}
               aria-label="Log out"
             >
               <LogOut className="h-5 w-5" />
@@ -185,8 +188,10 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <UserProvider>
-      <ChatLayoutContent>{children}</ChatLayoutContent>
-    </UserProvider>
+    <AuthGuard>
+      <UserProvider>
+        <ChatLayoutContent>{children}</ChatLayoutContent>
+      </UserProvider>
+    </AuthGuard>
   );
 }

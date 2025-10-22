@@ -5,6 +5,10 @@ import { ChatApiStack } from '../lib/chat-api-stack';
 import { DataStack } from '../lib/data-stack';
 import { AuthStack } from '../lib/auth-stack';
 import { DnsStack } from '../lib/dns-stack';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = new cdk.App();
 const region = 'us-east-1';
@@ -21,6 +25,8 @@ const auth = new AuthStack(app, 'BlendChatAuthStack', {
   domainPrefix: 'chatstalkiq',
   callbackUrls: ['https://chatbudi.com', 'https://www.chatbudi.com', 'http://localhost:9002'],
   logoutUrls: ['https://chatbudi.com', 'https://www.chatbudi.com', 'http://localhost:9002'],
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
 });
 
 const data = new DataStack(app, 'BlendChatDataStack', { env });

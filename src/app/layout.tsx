@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 
 const fontBody = Inter({
@@ -33,8 +34,10 @@ export default function RootLayout({
           fontHeadline.variable
         )}
       >
-        {children}
-        <Toaster />
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
