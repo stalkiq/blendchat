@@ -64,43 +64,73 @@ async function sendInvitations(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chatbudi.com';
   const chatUrl = `${siteUrl}/chat/${chatId}`;
 
-  // For now, we'll log the emails that would be sent
-  // You can integrate with Resend, SendGrid, AWS SES, etc.
-  console.log('=== EMAIL INVITATIONS ===');
-  emails.forEach(email => {
-    console.log(`\nTO: ${email}`);
-    console.log(`SUBJECT: ${creatorName} invited you to a group chat`);
-    console.log(`BODY:`);
-    console.log(`${creatorName} (${creatorEmail}) invited you to join a group chat.`);
-    console.log(`\nFirst message: "${firstMessage.substring(0, 100)}${firstMessage.length > 100 ? '...' : ''}"`);
-    console.log(`\nJoin the conversation: ${chatUrl}`);
-    console.log(`\n========================`);
-  });
-
-  // TODO: Implement actual email sending
-  // Example with Resend:
-  /*
-  import { Resend } from 'resend';
+  // Import and initialize Resend
+  const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
-  
-  await Promise.all(
-    emails.map(email =>
-      resend.emails.send({
-        from: 'BlendChat <noreply@chatbudi.com>',
-        to: email,
-        subject: `${creatorName} invited you to a group chat`,
-        html: `
-          <h2>You've been invited to a group chat!</h2>
-          <p>${creatorName} (${creatorEmail}) invited you to join a conversation.</p>
-          <p><strong>First message:</strong> "${firstMessage.substring(0, 200)}..."</p>
-          <p><a href="${chatUrl}">Join the conversation →</a></p>
-        `,
-      })
-    )
-  );
-  */
 
-  return true;
+  try {
+    // Send emails to all recipients
+    const results = await Promise.allSettled(
+      emails.map(email =>
+        resend.emails.send({
+          from: 'BlendChat <onboarding@resend.dev>', // Using Resend's test domain
+          to: email,
+          subject: `${creatorName} invited you to a group chat`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .container { background: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                  h1 { color: #7f1d1d; margin-top: 0; }
+                  .message-box { background: #fef2f2; border-left: 4px solid #991b1b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+                  .button { display: inline-block; background: #991b1b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+                  .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 12px; color: #666; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <h1>🎉 You've been invited to a group chat!</h1>
+                  <p><strong>${creatorName}</strong> (${creatorEmail}) invited you to join a conversation on BlendChat.</p>
+                  
+                  <div class="message-box">
+                    <p style="margin: 0;"><strong>First message:</strong></p>
+                    <p style="margin: 10px 0 0 0;">"${firstMessage.substring(0, 200)}${firstMessage.length > 200 ? '...' : ''}"</p>
+                  </div>
+
+                  <a href="${chatUrl}" class="button">Join the Conversation →</a>
+
+                  <div class="footer">
+                    <p>This is a temporary chat link. The conversation will be available until the server restarts.</p>
+                    <p>BlendChat - The AI for Groups</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+        })
+      )
+    );
+
+    // Log results
+    console.log('=== EMAIL INVITATIONS SENT ===');
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        console.log(`✅ Sent to ${emails[index]} - ID: ${result.value.data?.id}`);
+      } else {
+        console.error(`❌ Failed to send to ${emails[index]}:`, result.reason);
+      }
+    });
+    console.log('==============================');
+
+    return true;
+  } catch (error) {
+    console.error('Error sending invitations:', error);
+    return false;
+  }
 }
 
 // Export function to get chat by ID
