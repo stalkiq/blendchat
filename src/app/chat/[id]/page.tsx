@@ -44,12 +44,12 @@ export default function ChatSessionPage() {
   return (
     <div className="flex h-full flex-col">
       <header className="flex h-16 items-center border-b px-6 shrink-0">
-        <h2 className="text-xl font-headline font-semibold tracking-tight mx-auto max-w-2xl w-full text-center">
+        <h2 className="text-xl font-headline font-semibold tracking-tight mx-auto max-w-4xl w-full text-center">
           {chat.title}
         </h2>
       </header>
       <ScrollArea className="flex-1">
-        <div className="space-y-6 p-6 max-w-2xl mx-auto w-full">
+        <div className="space-y-6 p-6 max-w-4xl mx-auto w-full">
           {chat.messages.map(message => {
             const senderUser =
               message.sender === 'user' || message.sender === 'other'
@@ -89,7 +89,7 @@ export default function ChatSessionPage() {
         </div>
       </ScrollArea>
       <div className="px-4 pb-4">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-4xl">
           <form
             ref={formRef}
             onSubmit={async e => {
