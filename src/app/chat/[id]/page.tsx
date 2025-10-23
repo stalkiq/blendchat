@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { ArrowUp, Bot, Plus, UserCircle2 } from 'lucide-react';
+import { ArrowUp, Bot, Plus, UserCircle2, Mail, Copy, Check } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { useUser } from '../user-context';
@@ -19,6 +19,7 @@ interface Message {
 
 interface Chat {
   id: string;
+  chatEmail?: string;
   title: string;
   createdAt: string;
   emails: string[];
@@ -32,11 +33,20 @@ export default function ChatSessionPage() {
   const [chat, setChat] = useState<Chat | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const params = useParams();
   const chatId = params.id as string;
   const { user: currentUser } = useUser();
+
+  const copyEmail = async () => {
+    if (chat?.chatEmail) {
+      await navigator.clipboard.writeText(chat.chatEmail);
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     // Fetch chat from API
@@ -197,15 +207,45 @@ export default function ChatSessionPage() {
 
   return (
     <div className="flex h-full flex-col bg-black">
-      <header className="flex h-16 items-center border-b border-red-900/50 px-6 shrink-0">
-        <div className="mx-auto max-w-4xl w-full text-center">
-          <h2 className="text-xl font-headline font-semibold tracking-tight text-red-100">
-            {chat.title}
-          </h2>
-          <p className="text-xs text-red-300/60 mt-1">
-            {chat.emails.length} participant{chat.emails.length !== 1 ? 's' : ''}
-            {chat.includeGPT && ' • GPT enabled'}
-          </p>
+      <header className="border-b border-red-900/50 px-6 py-4 shrink-0">
+        <div className="mx-auto max-w-4xl w-full">
+          {/* Chat Email - Prominent Display */}
+          {chat.chatEmail && (
+            <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-red-800/50 bg-red-950/30 px-4 py-2">
+              <Mail className="h-4 w-4 text-red-300" />
+              <span className="text-sm font-mono text-red-100">{chat.chatEmail}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyEmail}
+                className="h-6 px-2 text-red-300 hover:text-red-100 hover:bg-red-900/30"
+              >
+                {emailCopied ? (
+                  <>
+                    <Check className="h-3 w-3 mr-1" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3 mr-1" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+          
+          {/* Chat Title and Info */}
+          <div className="text-center">
+            <h2 className="text-xl font-headline font-semibold tracking-tight text-red-100">
+              {chat.title}
+            </h2>
+            <p className="text-xs text-red-300/60 mt-1">
+              {chat.emails.length} participant{chat.emails.length !== 1 ? 's' : ''}
+              {chat.includeGPT && ' • GPT enabled'}
+              {chat.chatEmail && ' • Anyone can email to join'}
+            </p>
+          </div>
         </div>
       </header>
 

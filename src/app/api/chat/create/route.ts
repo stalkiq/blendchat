@@ -10,9 +10,13 @@ export async function POST(request: NextRequest) {
     // Generate unique chat ID
     const chatId = nanoid(10);
     
+    // Generate unique email address for this chat
+    const chatEmail = `chat-${chatId}@chatbudi.com`;
+    
     // Create chat object
     const chat = {
       id: chatId,
+      chatEmail,
       title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
       createdAt: new Date().toISOString(),
       emails: emails || [],
@@ -41,13 +45,15 @@ export async function POST(request: NextRequest) {
     // Log chat creation info
     console.log('=== CHAT CREATED ===');
     console.log(`Chat ID: ${chatId}`);
+    console.log(`Chat Email: ${chatEmail}`);
     console.log(`Link: ${chatUrl}`);
     console.log(`Recipients: ${emails.join(', ')}`);
     console.log(`Creator: ${creatorName} (${creatorEmail})`);
     console.log('====================');
 
     return NextResponse.json({ 
-      chatId, 
+      chatId,
+      chatEmail,
       chatUrl,
       success: true,
       message: 'Chat created successfully' 
