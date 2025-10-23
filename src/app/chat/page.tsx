@@ -38,21 +38,10 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
   const participantIds = selectedUsers.map(u => u.id);
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Main content area */}
-      <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
-        <div className="text-center max-w-3xl">
-          <h1 className="text-5xl font-headline font-bold tracking-tight mb-4">Start Collaborating</h1>
-          <p className="text-lg text-muted-foreground">
-            Add participants and type your first message to begin
-          </p>
-        </div>
-      </div>
-
+    <div className="flex h-full flex-col items-center justify-center bg-black p-6">
       {/* Integrated Red Chat Box with Participants */}
-      <div className="px-4 pb-4">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-2xl border-2 border-red-900 bg-[#1a0b0b] shadow-2xl overflow-hidden">
+      <div className="w-full max-w-3xl">
+        <div className="rounded-2xl border-2 border-red-900 bg-[#1a0b0b] shadow-2xl overflow-hidden">
             {/* Participants Section - Top of Red Box */}
             <div className="border-b border-red-900/50 bg-[#0d0505]">
               {/* Selected Participants Bar */}
@@ -171,14 +160,13 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
                 <Plus className="h-4 w-4 text-red-300" />
               </div>
             </form>
-          </div>
-
-          {/* Helper Text */}
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            {selectedUsers.length} participant{selectedUsers.length !== 1 ? 's' : ''} selected
-            {includeGPT && ' • GPT enabled'}
-          </p>
         </div>
+
+        {/* Helper Text */}
+        <p className="text-center text-xs text-muted-foreground mt-3">
+          {selectedUsers.length} participant{selectedUsers.length !== 1 ? 's' : ''} selected
+          {includeGPT && ' • GPT enabled'}
+        </p>
       </div>
     </div>
   );
