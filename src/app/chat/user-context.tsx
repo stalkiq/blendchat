@@ -1,12 +1,10 @@
 'use client';
 
 import { User } from '@/lib/types';
-import { useAuth } from '@/components/auth-provider';
 import {
   createContext,
   useContext,
   useState,
-  useEffect,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -19,28 +17,16 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export function UserProvider({ children }: { children: ReactNode }) {
-  const { user: authUser } = useAuth();
-  
-  // Convert authenticated user to app User type
-  const [user, setUser] = useState<User>({
-    id: authUser?.id || '1',
-    name: authUser?.name || authUser?.email?.split('@')[0] || 'User',
-    email: authUser?.email || '',
-    avatar: authUser?.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser?.email || 'user'}`,
-  });
+// Default user - no authentication required
+const defaultUser: User = {
+  id: '1',
+  name: 'Guest User',
+  email: 'guest@chatbudi.com',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest',
+};
 
-  // Update user when authUser changes
-  useEffect(() => {
-    if (authUser) {
-      setUser({
-        id: authUser.id,
-        name: authUser.name || authUser.email?.split('@')[0] || 'User',
-        email: authUser.email,
-        avatar: authUser.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.email}`,
-      });
-    }
-  }, [authUser]);
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User>(defaultUser);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

@@ -4,7 +4,7 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getChats, users } from '@/lib/data';
-import { ChevronsUpDown, MessageSquarePlus, UserPlus, Users, LogOut } from 'lucide-react';
+import { ChevronsUpDown, MessageSquarePlus, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -16,8 +16,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { UserProvider, useUser } from './user-context';
-import { AuthGuard } from '@/components/auth-guard';
-import { useAuth } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 import {
   Popover,
@@ -31,7 +29,6 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const params = useParams();
   const { user, setUser } = useUser();
-  const { signOut } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const chatId = params.id as string | undefined;
 
@@ -75,26 +72,14 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
               <span className="text-xs text-muted-foreground truncate">{user.email}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-2"
-              onClick={createNewChat}
-              title="New chat"
-            >
-              <MessageSquarePlus className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => signOut()}
-              aria-label="Log out"
-              title="Sign out"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={createNewChat}
+            title="New chat"
+          >
+            <MessageSquarePlus className="h-5 w-5" />
+          </Button>
         </div>
         <ScrollArea className="flex-1">
           <nav className="grid items-start p-2 text-sm font-medium">
@@ -173,10 +158,8 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard>
-      <UserProvider>
-        <ChatLayoutContent>{children}</ChatLayoutContent>
-      </UserProvider>
-    </AuthGuard>
+    <UserProvider>
+      <ChatLayoutContent>{children}</ChatLayoutContent>
+    </UserProvider>
   );
 }
