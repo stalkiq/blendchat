@@ -49,10 +49,19 @@ export default function ChatSessionPage() {
   };
 
   useEffect(() => {
-    // Fetch chat from API
+    // Fetch chat from API with access token verification
     const fetchChat = async () => {
       try {
-        const response = await fetch(`/api/chat/${chatId}`);
+        // Get token and email from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const email = urlParams.get('email');
+
+        const url = new URL(`/api/chat/${chatId}`, window.location.origin);
+        if (token) url.searchParams.set('token', token);
+        if (email) url.searchParams.set('email', email);
+
+        const response = await fetch(url.toString());
         if (response.ok) {
           const data = await response.json();
           setChat(data);
@@ -209,41 +218,14 @@ export default function ChatSessionPage() {
     <div className="flex h-full flex-col bg-black">
       <header className="border-b border-red-900/50 px-6 py-4 shrink-0">
         <div className="mx-auto max-w-4xl w-full">
-          {/* Chat Email - Prominent Display */}
-          {chat.chatEmail && (
-            <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-red-800/50 bg-red-950/30 px-4 py-2">
-              <Mail className="h-4 w-4 text-red-300" />
-              <span className="text-sm font-mono text-red-100">{chat.chatEmail}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={copyEmail}
-                className="h-6 px-2 text-red-300 hover:text-red-100 hover:bg-red-900/30"
-              >
-                {emailCopied ? (
-                  <>
-                    <Check className="h-3 w-3 mr-1" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copy
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-          
           {/* Chat Title and Info */}
           <div className="text-center">
             <h2 className="text-xl font-headline font-semibold tracking-tight text-red-100">
               {chat.title}
             </h2>
             <p className="text-xs text-red-300/60 mt-1">
-              {chat.emails.length} participant{chat.emails.length !== 1 ? 's' : ''}
+              Private group chat • {chat.emails?.length || 0} invited
               {chat.includeGPT && ' • GPT enabled'}
-              {chat.chatEmail && ' • Anyone can email to join'}
             </p>
           </div>
         </div>
