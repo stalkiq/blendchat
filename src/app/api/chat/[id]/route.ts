@@ -3,10 +3,10 @@ import { getChat } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const chatId = params.id;
+    const { id: chatId } = await params;
     
     // Get access token from URL params
     const { searchParams } = new URL(request.url);
@@ -42,19 +42,33 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const chatId = params.id;
+    const { id: chatId } = await params;
     const body = await request.json();
     const { message, senderEmail, senderName } = body;
 
     // Import the functions we need
-    const { addMessage, getChat, updateChatAIInsights } = await import('@/lib/db');
+    const { addMessage, updateChatAIInsights } = await import('@/lib/db');
     const { analyzeSentiment, analyzeConversation, generateSmartReply } = await import('@/lib/ai-enhanced');
+    const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
+    const { DynamoDBDocumentClient, GetCommand } = await import('@aws-sdk/lib-dynamodb');
 
-    // Verify chat exists and get it
-    const chat = await getChat(chatId);
+    // Get chat directly from DB without token check (already verified on page load)
+    const client = new DynamoDBClient({ region: 'us-east-1' });
+    const docClient = DynamoDBDocumentClient.from(client);
+    const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'BlendChatDataStack-BlendChatTableBCAC2F65-19ZR770CR1X17';
+    
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        pk: `CHAT#${chatId}`,
+        sk: `METADATA`,
+      },
+    }));
+
+    const chat = result.Item;
     if (!chat) {
       return NextResponse.json(
         { error: 'Chat not found or expired' },
