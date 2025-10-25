@@ -51,23 +51,24 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
 
     try {
       const doc = new jsPDF();
-      
-      doc.setFontSize(20);
-      doc.text('Your Document', 20, 20);
-      
-      doc.setFontSize(10);
-      doc.text(`Created: ${new Date().toLocaleString()}`, 20, 30);
-      
-      if (emails.length > 0) {
-        doc.text(`To: ${emails.join(', ')}`, 20, 37);
-      }
-      if (includeGPT) {
-        doc.text('GPT Included: Yes', 20, 44);
-      }
+      const pageHeight = doc.internal.pageSize.height;
+      const pageWidth = doc.internal.pageSize.width;
+      const margin = 20;
+      const maxWidth = pageWidth - (margin * 2);
+      let yPosition = margin;
       
       doc.setFontSize(12);
-      const lines = doc.splitTextToSize(message, 170);
-      doc.text(lines, 20, 55);
+      const lines = doc.splitTextToSize(message, maxWidth);
+      
+      // Add lines and handle page breaks
+      for (let i = 0; i < lines.length; i++) {
+        if (yPosition + 10 > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+        doc.text(lines[i], margin, yPosition);
+        yPosition += 7; // Line height
+      }
       
       const fileName = `document-${Date.now()}.pdf`;
       doc.save(fileName);
@@ -86,7 +87,7 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center bg-black p-6">
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-5xl">
         <form onSubmit={handleSubmit} className="rounded-2xl border-2 border-red-900 bg-[#1a0b0b] shadow-2xl overflow-hidden">
           {/* Email Recipients Section */}
           <div className="border-b border-red-900/50 bg-[#0d0505]">
@@ -152,16 +153,27 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="min-h-[80px] bg-transparent border-0 text-red-50 placeholder:text-red-200/40 pl-12 pr-12 py-3 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="min-h-[300px] bg-transparent border-0 text-red-50 placeholder:text-red-200/40 pl-12 pr-28 py-3 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
               required
             />
+
+            {/* PDF Download Button */}
+            <Button
+              type="button"
+              onClick={handleDownloadPDF}
+              disabled={!message.trim()}
+              className="absolute right-16 bottom-6 rounded-lg h-10 w-10 bg-red-700 hover:bg-red-800 disabled:opacity-50"
+              title="Download as PDF"
+            >
+              <FileDown className="h-5 w-5" />
+            </Button>
 
             {/* Submit Button */}
             <Button
               type="submit"
               size="icon"
               disabled={!message.trim()}
-              className="absolute right-6 bottom-6 rounded-lg h-10 w-10 bg-red-600 hover:bg-red-700 disabled:opacity-50"
+              className="absolute right-3 bottom-6 rounded-lg h-10 w-10 bg-red-600 hover:bg-red-700 disabled:opacity-50"
             >
               <ArrowUp className="h-5 w-5" />
             </Button>
@@ -173,21 +185,12 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
           </div>
         </form>
 
-        {/* PDF Download Button */}
-        <div className="mt-4 flex justify-center">
-          <Button
-            onClick={handleDownloadPDF}
-            disabled={!message.trim()}
-            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 gap-2"
-          >
-            <FileDown className="h-4 w-4" />
-            Download as PDF
-          </Button>
-        </div>
-
         <p className="text-center text-xs text-muted-foreground mt-3">
-          {emails.length} recipient{emails.length !== 1 ? 's' : ''}
+          {emails.length} recipient{emails.length !== 1 ? 's' : ''} 
           {includeGPT && ' • GPT enabled'}
+          {' • Click '}
+          <FileDown className="inline h-3 w-3" />
+          {' to download PDF'}
         </p>
       </div>
     </div>
