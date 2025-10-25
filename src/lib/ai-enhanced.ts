@@ -36,7 +36,7 @@ export async function analyzeConversation(messages: Message[]): Promise<AIInsigh
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -120,7 +120,7 @@ export async function generateSmartReply(
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
