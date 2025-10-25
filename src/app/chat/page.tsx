@@ -54,9 +54,20 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || isSubmitting) return;
+    console.log('Form submitted', { message, isSubmitting, user });
+    
+    if (!message.trim()) {
+      console.log('Message is empty');
+      return;
+    }
+    
+    if (isSubmitting) {
+      console.log('Already submitting');
+      return;
+    }
 
     setIsSubmitting(true);
+    console.log('Creating chat...');
 
     try {
       // Create chat and send invitations
@@ -72,18 +83,25 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
         }),
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (data.chatUrl) {
+        console.log('Redirecting to:', data.chatUrl);
         // Redirect to the new chat with access token
         window.location.href = data.chatUrl;
       } else if (data.chatId) {
         // Fallback
+        console.log('Using fallback redirect');
         router.push(`/chat/${data.chatId}`);
+      } else {
+        console.error('No chatUrl or chatId in response');
+        alert('Failed to create chat. Please try again.');
       }
     } catch (error) {
       console.error('Error creating chat:', error);
-      alert('Failed to create chat. Please try again.');
+      alert('Failed to create chat: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsSubmitting(false);
     }
