@@ -106,11 +106,18 @@ export async function generateSmartReply(
     .join('\n');
 
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.error('OPENAI_API_KEY is not configured');
+      throw new Error('OPENAI_API_KEY is not configured');
+    }
+
+    console.log('Calling OpenAI API for smart reply...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4-turbo-preview',
@@ -146,6 +153,9 @@ Keep responses focused and actionable.`,
     return data.choices[0].message.content;
   } catch (error) {
     console.error('Error generating AI reply:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     return 'I apologize, but I\'m having trouble generating a response right now. Please try again.';
   }
 }
