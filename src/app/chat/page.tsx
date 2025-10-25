@@ -74,8 +74,11 @@ export default function ChatPage({ newChatUsers = [] }: ChatPageProps) {
 
       const data = await response.json();
 
-      if (data.chatId) {
-        // Redirect to the new chat
+      if (data.chatUrl) {
+        // Redirect to the new chat with access token
+        window.location.href = data.chatUrl;
+      } else if (data.chatId) {
+        // Fallback
         router.push(`/chat/${data.chatId}`);
       }
     } catch (error) {

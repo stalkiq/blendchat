@@ -137,80 +137,34 @@ export default function ChatSessionPage() {
 
     form.reset();
 
-    // If GPT is included, send to AI
-    if (chat.includeGPT) {
-      // Add AI message placeholder
-      setChat(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          messages: [
-            ...prev.messages,
-            {
-              id: `msg-${Date.now() + 1}`,
-              text: '',
-              createdAt: new Date().toISOString(),
-              sender: 'ai',
-            },
-          ],
-        };
+    // Send message to backend
+    try {
+      const response = await fetch(`/api/chat/${chatId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          senderEmail: currentUser.email,
+          senderName: currentUser.name,
+        }),
       });
 
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chatId,
-            history: chat.messages.map(m => ({
-              role: m.sender === 'user' ? 'user' : 'assistant',
-              content: m.text,
-            })),
-            prompt,
-          }),
-        });
-
-        if (response.headers.get('content-type')?.includes('text/event-stream') && response.body) {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-
-          const appendToken = (chunk: string) => {
-            setChat(prev => {
-              if (!prev) return prev;
-              const msgs = [...prev.messages];
-              for (let i = msgs.length - 1; i >= 0; i--) {
-                if (msgs[i].sender === 'ai' && !msgs[i].text) {
-                  msgs[i] = { ...msgs[i], text: msgs[i].text + chunk };
-                  break;
-                }
-              }
-              return { ...prev, messages: msgs };
-            });
-          };
-
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
-            for (const part of parts) {
-              const line = part.trim();
-              if (!line.startsWith('data: ')) continue;
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-              try {
-                const json = JSON.parse(data);
-                const delta = json.choices?.[0]?.delta?.content || '';
-                if (delta) appendToken(delta);
-              } catch {}
-            }
-          }
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update chat with new message and AI response
+        if (data.aiResponse) {
+          setChat(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              messages: [...prev.messages, data.aiResponse],
+            };
+          });
         }
-      } catch (error) {
-        console.error('Error sending message:', error);
       }
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
   };
 
